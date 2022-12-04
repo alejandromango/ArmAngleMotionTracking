@@ -57,7 +57,7 @@ cv2.namedWindow("Trackbars")
 while True:
     time.sleep(0.5)
     # Start reading the webcam feed frame by frame.
-    cap.set(1, 7561)
+    cap.set(1, 8202)
     ret, frame = cap.read()
     if not ret:
         break
@@ -97,7 +97,7 @@ while True:
     stacked = np.hstack((mask_3,hsv,res))
     
     # Show this stacked frame at 40% of the size.
-    cv2.imshow('Trackbars',cv2.resize(stacked,None,fx=0.4,fy=0.4))
+    cv2.imshow('Trackbars',cv2.resize(mask,None,fx=0.4,fy=0.4))
     
     # If the user presses ESC then exit the program
     key = cv2.waitKey(1)

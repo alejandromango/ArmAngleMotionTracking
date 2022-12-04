@@ -52,10 +52,10 @@ colors.append((randint(64, 255), randint(64, 255), randint(64, 255)))
   
 print('Selected bounding boxes {}'.format(bboxes))
 
-l_h = 10.0#cv2.getTrackbarPos("L - H", "Trackbars")
+l_h = 155.0#cv2.getTrackbarPos("L - H", "Trackbars")
 l_s = 75.0#cv2.getTrackbarPos("L - S", "Trackbars")
 l_v = 225.0#cv2.getTrackbarPos("L - V", "Trackbars")
-u_h = 175.0#cv2.getTrackbarPos("U - H", "Trackbars")
+u_h = 200.0#cv2.getTrackbarPos("U - H", "Trackbars")
 u_s = 150.0#cv2.getTrackbarPos("U - S", "Trackbars")
 u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
 
@@ -64,6 +64,9 @@ u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
 lower_range = np.array([l_h, l_s, l_v])
 upper_range = np.array([u_h, u_s, u_v])
 
+# Make color mask of frame
+frame_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+frame_mask = cv.inRange(frame_hsv, lower_range, upper_range)
 
 # set up the ROI for tracking
 # Mask only the green color of the joint markers
@@ -72,13 +75,10 @@ tracking_coordinates = []
 trackers = []
 for i in range(len(bboxes)):
     tracking_coordinates.append(np.zeros((1, 2)))
-    trackers.append(cv.legacy.TrackerMedianFlow_create())
+    trackers.append(cv.legacy.TrackerCSRT_create())
     track_window.append(bboxes[i])
-    ok = trackers[i].init(frame, bboxes[i])
-    test = track_window
-    roi.append(frame[track_window[i][1]:track_window[i][1]+track_window[i][3], track_window[i][0]:track_window[i][0]+track_window[i][2]])
-    hsv_roi.append(cv.cvtColor(roi[i], cv.COLOR_BGR2HSV))
-    mask.append(cv.inRange(hsv_roi[i], lower_range, upper_range))
+    ok = trackers[i].init(frame_mask, bboxes[i])
+    mask.append(frame_mask[track_window[i][1]:track_window[i][1]+track_window[i][3], track_window[i][0]:track_window[i][0]+track_window[i][2]])
     if not ok:
         print('[ERROR] tracker not initialized')
         exit()
@@ -89,59 +89,40 @@ error_flag = False
 while(1):
     frame_num = frame_num + 1
     ret, frame = cap.read()
+    frame_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    frame_mask = cv.inRange(frame_hsv, lower_range, upper_range)
     if (cap.get(cv.CAP_PROP_POS_FRAMES) % 1000 == 0):
         print("Alanayzed {} frames of {}".format(cap.get(cv.CAP_PROP_POS_FRAMES), cap.get(cv.CAP_PROP_FRAME_COUNT)))
     if (ret == True) & (cap.get(cv.CAP_PROP_POS_FRAMES) < 24800):
         drawPts = np.empty((1,2))
         for i in range(len(bboxes)):
             # apply algorithm to get the new location
-            ret, track_window[i] = trackers[i].update(frame)
+            ret, track_window[i] = trackers[i].update(frame_mask)
             #update histogram with latest point
             try:
                 track_window[i] = (int(track_window[i][0]), int(track_window[i][1]), int(track_window[i][2]), int(track_window[i][3]))
-                roi[i] = frame[track_window[i][1]:track_window[i][1]+track_window[i][3], track_window[i][0]:track_window[i][0]+track_window[i][2]]
-                hsv_roi[i] = cv.cvtColor(roi[i], cv.COLOR_BGR2HSV)
-                mask[i] = cv.inRange(hsv_roi[i], lower_range, upper_range)
+                mask[i] = frame_mask[track_window[i][1]:track_window[i][1]+track_window[i][3], track_window[i][0]:track_window[i][0]+track_window[i][2]]
                 # convert the grayscale image to binary image
                 grayret,thresh = cv.threshold( mask[i],127,255,0)
                 # # calculate moments of binary image
                 M = cv.moments(thresh)
                 # # calculate x,y coordinate of center of color blob
-
                 coord_array = np.array([[int(track_window[i][0]) + int(M["m10"] / M["m00"]), int(track_window[i][1]) + int(M["m01"] / M["m00"])]])
             except:
                 print("Tracking of point {} failed, please manually locate it to continue tracking at frame number {}".format(i, cap.get(cv.CAP_PROP_POS_FRAMES)))
                 failure_bbox = cv.selectROI("Select ROI number {}".format(i), frame)
-                trackers[i].init(frame, failure_bbox)
+                trackers[i].init(frame_mask, failure_bbox)
                 track_window[i] = failure_bbox
-                roi[i] = frame[track_window[i][1]:track_window[i][1]+track_window[i][3], track_window[i][0]:track_window[i][0]+track_window[i][2]]
-                hsv_roi[i] = cv.cvtColor(roi[i], cv.COLOR_BGR2HSV)
-
-                l_h = 10.0#cv2.getTrackbarPos("L - H", "Trackbars")
-                l_s = 75.0#cv2.getTrackbarPos("L - S", "Trackbars")
-                l_v = 100.0#cv2.getTrackbarPos("L - V", "Trackbars")
-                u_h = 200.0#cv2.getTrackbarPos("U - H", "Trackbars")
-                u_s = 255.0#cv2.getTrackbarPos("U - S", "Trackbars")
-                u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
-
-                # Set the lower and upper HSV range according to the value selected
-                # by the trackbar
-                lower_range = np.array([l_h, l_s, l_v])
-                upper_range = np.array([u_h, u_s, u_v])
-
-                #Difficulties at frames 4149, 7561
-
-                mask[i] = cv.inRange(hsv_roi[i], lower_range, upper_range)
+                mask[i] = frame_mask[track_window[i][1]:track_window[i][1]+track_window[i][3], track_window[i][0]:track_window[i][0]+track_window[i][2]]
                 # convert the grayscale image to binary image
                 grayret,thresh = cv.threshold( mask[i],127,255,0)
                 # # calculate moments of binary image
                 M = cv.moments(thresh)
-                stacked = np.hstack((roi[i],hsv_roi[i],cv.cvtColor(mask[i], cv.COLOR_GRAY2BGR)))
-                cv.imshow('Failure ROI',stacked)
+                cv.imshow('Failure ROI',frame_mask)
                 k = cv.waitKey(30) & 0xff
                 if k == 27:
                     break
-                # time.sleep(1000)
+                time.sleep(10)
                 coord_array = np.array([[int(track_window[i][0]) + int(M["m10"] / M["m00"]), int(track_window[i][1]) + int(M["m01"] / M["m00"])]])
                 print("recovered from failure")
 
@@ -158,10 +139,10 @@ while(1):
         cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
         angle = np.degrees(np.arccos(cosine_angle))
         angles.loc[len(angles)] = [frame_num, angle]
-        # cv.imshow('img2',img2)
-        # k = cv.waitKey(30) & 0xff
-        # if k == 27:
-        #     break
+        cv.imshow('img2',img2)
+        k = cv.waitKey(30) & 0xff
+        if k == 27:
+            break
 
     else:
         break
