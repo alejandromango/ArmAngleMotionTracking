@@ -5,18 +5,36 @@ import cv2
 import numpy as np
 import time
 import argparse
+import ffmpeg
+import os
+from tkinter.filedialog import askopenfile
 
 # A required callback method that goes into the trackbar function.
 def nothing(x):
     pass
 
 # Initializing the webcam feed.
-parser = argparse.ArgumentParser(description='This sample demonstrates the camshift algorithm. \
-                                              The example file can be downloaded from: \
-                                              https://www.bogotobogo.com/python/OpenCV_Python/images/mean_shift_tracking/slow_traffic_small.mp4')
-parser.add_argument('image', type=str, help='path to image file')
-args = parser.parse_args()
-cap = cv2.VideoCapture(args.image)
+# parser = argparse.ArgumentParser(description='This sample demonstrates the camshift algorithm. \
+#                                               The example file can be downloaded from: \
+#                                               https://www.bogotobogo.com/python/OpenCV_Python/images/mean_shift_tracking/slow_traffic_small.mp4')
+# movie = askopenfile(title='Select Folder Containing Arm Data')
+# # parser.add_argument('movie', type=str, help='path to movie file')
+# name, ext = os.path.splitext(movie.name)
+# print(ext)
+# if ext != ".mp4":
+#     target_name = name + ".mp4"
+#     ffmpeg.input(movie.name).output(target_name).run()
+#     print("Finished converting {}".format(movie.name))
+# else:
+#     target_name = movie.name
+target_name = "/Users/alex/Library/Mobile Documents/com~apple~CloudDocs/School/Masters/BME_207/Term Project/20221202_Initial_Full_Data_Run/20221202_FullDataVideo.mp4"
+print("Analyzing {}".format(target_name))
+cap = cv2.VideoCapture(target_name)
+length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+framerate = int(cap.get(cv2.CAP_PROP_FPS))
+start_delay_s = 25
+print((framerate))
+cap.set(1, 2353)#int(start_delay_s*framerate)/length)
 cap.set(3,1280)
 cap.set(4,720)
 # take first frame of the video
@@ -37,8 +55,9 @@ cv2.namedWindow("Trackbars")
 # cv2.createTrackbar("U - V", "Trackbars", 255, 255, nothing)
  
 while True:
-    
+    time.sleep(0.5)
     # Start reading the webcam feed frame by frame.
+    cap.set(1, 2353)
     ret, frame = cap.read()
     if not ret:
         break
@@ -51,11 +70,11 @@ while True:
     # Get the new values of the trackbar in real time as the user changes 
     # them 
     # 25.0, 100.0,200.0)), np.array((50.0,200.0,255.0)
-    l_h = 25.0#cv2.getTrackbarPos("L - H", "Trackbars")
-    l_s = 100.0#cv2.getTrackbarPos("L - S", "Trackbars")
-    l_v = 200.0#cv2.getTrackbarPos("L - V", "Trackbars")
-    u_h = 50.0#cv2.getTrackbarPos("U - H", "Trackbars")
-    u_s = 200.0#cv2.getTrackbarPos("U - S", "Trackbars")
+    l_h = 169.0#cv2.getTrackbarPos("L - H", "Trackbars")
+    l_s = 50.0#cv2.getTrackbarPos("L - S", "Trackbars")
+    l_v = 240.0#cv2.getTrackbarPos("L - V", "Trackbars")
+    u_h = 175.0#cv2.getTrackbarPos("U - H", "Trackbars")
+    u_s = 150.0#cv2.getTrackbarPos("U - S", "Trackbars")
     u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
  
     # Set the lower and upper HSV range according to the value selected
