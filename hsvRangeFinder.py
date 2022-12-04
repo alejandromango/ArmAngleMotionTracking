@@ -34,7 +34,7 @@ length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 framerate = int(cap.get(cv2.CAP_PROP_FPS))
 start_delay_s = 25
 print((framerate))
-cap.set(1, 2353)#int(start_delay_s*framerate)/length)
+cap.set(1, 7561)#int(start_delay_s*framerate)/length)
 cap.set(3,1280)
 cap.set(4,720)
 # take first frame of the video
@@ -57,7 +57,7 @@ cv2.namedWindow("Trackbars")
 while True:
     time.sleep(0.5)
     # Start reading the webcam feed frame by frame.
-    cap.set(1, 2353)
+    cap.set(1, 7561)
     ret, frame = cap.read()
     if not ret:
         break
@@ -70,10 +70,10 @@ while True:
     # Get the new values of the trackbar in real time as the user changes 
     # them 
     # 25.0, 100.0,200.0)), np.array((50.0,200.0,255.0)
-    l_h = 169.0#cv2.getTrackbarPos("L - H", "Trackbars")
-    l_s = 50.0#cv2.getTrackbarPos("L - S", "Trackbars")
-    l_v = 240.0#cv2.getTrackbarPos("L - V", "Trackbars")
-    u_h = 175.0#cv2.getTrackbarPos("U - H", "Trackbars")
+    l_h = 155.0#cv2.getTrackbarPos("L - H", "Trackbars")
+    l_s = 75.0#cv2.getTrackbarPos("L - S", "Trackbars")
+    l_v = 225.0#cv2.getTrackbarPos("L - V", "Trackbars")
+    u_h = 200.0#cv2.getTrackbarPos("U - H", "Trackbars")
     u_s = 150.0#cv2.getTrackbarPos("U - S", "Trackbars")
     u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
  
@@ -94,7 +94,7 @@ while True:
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
     
     # stack the mask, orginal frame and the filtered result
-    stacked = np.hstack((mask_3,frame,res))
+    stacked = np.hstack((mask_3,hsv,res))
     
     # Show this stacked frame at 40% of the size.
     cv2.imshow('Trackbars',cv2.resize(stacked,None,fx=0.4,fy=0.4))

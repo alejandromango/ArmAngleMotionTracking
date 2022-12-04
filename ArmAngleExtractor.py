@@ -50,9 +50,9 @@ colors.append((randint(64, 255), randint(64, 255), randint(64, 255)))
   
 print('Selected bounding boxes {}'.format(bboxes))
 
-l_h = 169.0#cv2.getTrackbarPos("L - H", "Trackbars")
-l_s = 50.0#cv2.getTrackbarPos("L - S", "Trackbars")
-l_v = 240.0#cv2.getTrackbarPos("L - V", "Trackbars")
+l_h = 155.0#cv2.getTrackbarPos("L - H", "Trackbars")
+l_s = 75.0#cv2.getTrackbarPos("L - S", "Trackbars")
+l_v = 150.0#cv2.getTrackbarPos("L - V", "Trackbars")
 u_h = 175.0#cv2.getTrackbarPos("U - H", "Trackbars")
 u_s = 150.0#cv2.getTrackbarPos("U - S", "Trackbars")
 u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
@@ -81,7 +81,7 @@ for i in range(len(bboxes)):
     roi_hist.append(cv.calcHist([hsv_roi[i]],[0],mask[i],[int(u_h-l_h)],[l_h, u_h]))
     cv.normalize(roi_hist[i],roi_hist[i],0,255,cv.NORM_MINMAX)
 # Setup the termination criteria, either 10 iteration or move by at least 1 pt
-term_crit = ( cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 1 )
+term_crit = ( cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 100, 5 )
 angles = pandas.DataFrame(data = {"Frame": [], "Angle": []})
 frame_num = 0
 error_flag = False
