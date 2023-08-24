@@ -31,31 +31,19 @@ cap.set(4,720)
 # take first frame of the video
 ret,frame = cap.read()
 ## Select regions of interest
-#[(266, 628, 56, 51), (560, 620, 47, 33), (997, 563, 40, 39)]
 bboxes = [(266, 628, 56, 51), (560, 620, 47, 33), (997, 563, 40, 39)]#[]
 colors = [] 
 colors.append((randint(64, 255), randint(64, 255), randint(64, 255)))
-# while True:
-#     # draw bounding boxes over objects
-#     # selectROI's default behaviour is to draw box starting from the center
-#     # when fromCenter is set to false, you can draw box starting from top left corner
-#     bbox = cv.selectROI('MultiTracker', frame)
-#     bboxes.append(bbox)
-#     colors.append((randint(64, 255), randint(64, 255), randint(64, 255)))
-#     print("Press q to quit selecting boxes and start tracking")
-#     print("Press any other key to select next object")
-#     k = cv.waitKey(0) & 0xFF
-#     if (k == 113):  # q is pressed
-#       break
+
   
 print('Selected bounding boxes {}'.format(bboxes))
 
-l_h = 155.0#cv2.getTrackbarPos("L - H", "Trackbars")
-l_s = 75.0#cv2.getTrackbarPos("L - S", "Trackbars")
-l_v = 150.0#cv2.getTrackbarPos("L - V", "Trackbars")
-u_h = 175.0#cv2.getTrackbarPos("U - H", "Trackbars")
-u_s = 150.0#cv2.getTrackbarPos("U - S", "Trackbars")
-u_v = 255.0#cv2.getTrackbarPos("U - V", "Trackbars")
+l_h = 155.0
+l_s = 75.0
+l_v = 150.0
+u_h = 175.0
+u_s = 150.0
+u_v = 255.0
 
 # Set the lower and upper HSV range according to the value selected
 # by the trackbar
